@@ -1,0 +1,7 @@
+Req OTP : https://iot-auth-aisplay.ais.th/auth/v3.2/oauth/authorize?response_type=code&client_id=Gk%2B9zbMPS9f8B6mE83TNOkCuWUkRMjAxcfXhrLZ7TlFhop0dYRIkQJ3GvIXadN4q7oTPgwM7oUU%3D&scope=profile&redirect_uri=https://www.ais.co.th/
+
+https://iot-auth-aisplay.ais.th/auth/v3.2/oauth/authorize?response_type=code&client_id=Gk%2B9zbMPS9f8B6mE83TNOkCuWUkRMjAxcfXhrLZ7TlFhop0dYRIkQJ3GvIXadN4q7oTPgwM7oUU%3D&redirect_uri=https://dev-middleware.thssoft.com/authen/
+
+Token : 
+
+curl --location 'https://iot-auth-aisplay.ais.th/auth/v3.2/oauth/token' --header 'Content-Type: application/x-www-form-urlencoded' --data-urlencode 'client_id=Gk+9zbMPS9f8B6mE83TNOkCuWUkRMjAxcfXhrLZ7TlFhop0dYRIkQJ3GvIXadN4q7oTPgwM7oUU=' --data-urlencode 'client_secret=e2afa1211b904e72a0bbd5b332d88d03' --data-urlencode 'grant_type=authorization_code' --data-urlencode 'code=Tpe8n9117j0YQD632naHp8cU62RF9h3139mqcHdnRl2c' --data-urlencode 'redirect_uri=https://dev-middleware.thssoft.com/authen/

@@ -1,0 +1,137 @@
+service: aws-Sithiphon-sls
+frameworkVersion: '3'
+
+# custom:
+#   tableName: 'users-table-sithiphon-${sls:stage}'
+plugins:
+  - serverless-domain-manager
+  - serverless-offline
+
+provider:
+  name: aws
+  runtime: nodejs18.x
+  iam:
+    role:
+      statements:
+        - Effect: Allow
+          Action:
+            - dynamodb:Query
+            - dynamodb:Scan
+            - dynamodb:GetItem
+            - dynamodb:PutItem
+            - dynamodb:UpdateItem
+            - dynamodb:DeleteItem
+          Resource:
+            - Fn::GetAtt: [ UsersTable, Arn ]
+  region: ap-southeast-1
+  stage: dev
+  environment:
+    USERS_TABLE: ${self:custom.tableName}
+    
+custom:
+  tableName: 'users-table-sithiphon-${sls:stage}'
+  customDomain:
+    domainName: "dev-middleware.thssoft.com"
+    basePath: "wow"
+    stage: ${self:provider.stage}
+    createRoute53Record: true
+    
+
+# functions:
+#   api:
+#     handler: index.handler
+#     events:
+#       - httpApi: '*'
+functions:
+  create:
+    handler: handler/createTodo.createTodo
+    events:
+      - http:
+          path: todos
+          method: post
+          cors: true
+  get:
+    handler: handler/getTodo.get
+    events:
+      - http:
+          path: todos/{userId}
+          method: get
+          cors: true    
+  auth:
+    handler: handler/authCode.auth
+    events:
+      - http:
+          path: authen
+          method: get
+          cors: true    
+  authorize:
+    handler: handler/authorize.auth
+    events:
+      - http:
+          path: authcode
+          method: get
+          cors: true       
+  getOneToken:
+    handler: handler/authorize.getOneToken
+    events:
+      - http:
+          path: authtoken/{id} 
+          method: get
+          cors: true 
+          
+  getAllToken:
+    handler: handler/authorize.getAllToken
+    events:
+      - http:
+          path: authtoken
+          method: get
+          cors: true             
+  token:
+    handler: handler/accessToken.token
+    events:
+      - http:
+          path: token
+          method: post
+          cors: true     
+  queryOne:
+    handler: handler/authCode.queryOne
+    events:
+      - http:
+          path: query/{tokenId}
+          method: get
+          cors: true    
+  queryAll:
+    handler: handler/authCode.queryAll
+    events:
+      - http:
+          path: query
+          method: get
+          cors: true             
+  getOne:
+    handler: handler/handler.getOne
+    events:
+      - http:
+          path: users/{id} 
+          method: get
+          cors: true
+  getAll:
+    handler: handler/handler.getAll 
+    events:
+     - http:
+          path: users
+          method: get
+          cors: true
+                  
+resources:
+  Resources:
+    UsersTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        AttributeDefinitions:
+          - AttributeName: userId
+            AttributeType: S
+        KeySchema:
+          - AttributeName: userId
+            KeyType: HASH
+        BillingMode: PAY_PER_REQUEST
+        TableName: ${self:custom.tableName}
