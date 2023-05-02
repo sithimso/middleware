@@ -27,6 +27,7 @@ provider:
   stage: dev
   environment:
     USERS_TABLE: ${self:custom.tableName}
+    DBURLAWS: ${ssm:DBURLAWS}
     
 custom:
   tableName: 'users-table-sithiphon-${sls:stage}'

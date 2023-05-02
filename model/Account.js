@@ -22,6 +22,9 @@ const accountSchema = mongoose.Schema({
     type: String,
   },
 
+  pid: {
+    type: String,
+  },
   createdAt: {
     type: Date,
     default: Date.now(),

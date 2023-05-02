@@ -1,5 +1,6 @@
 const express = require("express");
 const Account = require("../model/Account");
+const jwt = require("jsonwebtoken");
 const dotenv = require("dotenv");
 dotenv.config({ path: "./config.env" });
 
@@ -7,6 +8,23 @@ const serverless = require("serverless-http");
 const axios = require("axios");
 const app = express();
 const mongoose = require("mongoose");
+
+// JWT_SECRET_AWS=MIDDLEWAREJWTSECRETAWS1234567890
+// JWT_RFRESH_SECRET_AWS=MIDDLEWAREJWTSECRETAWSREFRESH890
+// JWT_EXPIRES_IN_AWS=90
+// JWT_REFRESH_EXPIRES_IN_AWS=1y
+
+const signToken = (pid) => {
+  return jwt.sign({ pid }, process.env.JWT_SECRET_AWS, {
+    expiresIn: process.env.JWT_EXPIRES_IN_AWS,
+  });
+};
+
+const signreFreshToken = (pid) => {
+  return jwt.sign({ pid }, process.env.JWT_RFRESH_SECRET_AWS, {
+    expiresIn: process.env.JWT_REFRESH_EXPIRES_IN_AWS,
+  });
+};
 
 const createResponse = (status, body) => {
   return {
@@ -17,6 +35,11 @@ const createResponse = (status, body) => {
 
 const connectDB = () => {
   console.log("============ Test DB Connection ==========");
+  // Test SSM
+  const DBURLAWS = process.env.DBURLAWS;
+  console.log(DBURLAWS);
+
+  console.log(`DBURLAWS : ${DBURLAWS}`);
 
   const DB = process.env.DATABASE.replace(
     "<PASSWORD>",
@@ -24,8 +47,8 @@ const connectDB = () => {
   );
 
   console.log(`DB : ${DB}`);
-
-  return mongoose.connect(DB, {
+  // Try using DB AWS URL
+  return mongoose.connect(DBURLAWS, {
     useNewUrlParser: true,
     useCreateIndex: true,
     useFindAndModify: false,
@@ -39,7 +62,7 @@ module.exports.auth = async (event, context, callback) => {
 
     context.callbackWaitsForEmptyEventLoop = false;
 
-    console.log("Connecting to DB ....");
+    console.log("Connecting to DB  by using AWS URL....");
 
     await connectDB();
     console.log(".....Connect Database Successfully....");
@@ -69,22 +92,56 @@ module.exports.auth = async (event, context, callback) => {
       data: requestObject,
     });
 
-    const resData = JSON.stringify(res.data);
+    // console.log("Response Data ", JSON.stringify(res.data));
+    // console.log("----------------------------------------------------");
+    // console.log(res);
+    // console.log("----------------------------------------------------");
+    // console.log("Response.status raw ", res.status);
 
-    console.log(resData);
-    //Collect the parameters to save in DB
+    const result = JSON.stringify(res.status);
+    console.log("Response.status ", result);
+    if (result === "200") {
+      console.log("Result OK");
 
-    const dataObj = JSON.parse(resData);
-    //const hoi = JSON.parse(JSON.stringify(res.headers));
+      let resData = { ...res.data };
+      console.log("Response First Data ", JSON.stringify(res.data));
+      const decodedObject = jwt.decode(res.data.access_token);
+      console.log("Decoded Object", JSON.stringify(decodedObject));
+      const privateId2 = JSON.stringify(decodedObject.pid).slice(1, -1);
+      resData.pid = privateId2;
 
-    const newAccount = await Account.create(dataObj);
+      //Genereate MW TOKEN
 
-    const response = {
-      statusCode: 200,
-      body: JSON.stringify(newAccount),
-    };
+      const mwToken = signToken(privateId2);
+      const mwRefreshToken = signreFreshToken(privateId2);
 
-    callback(null, response);
+      // console.log("pid2 : ", privateId2);
+      // console.log("Response Data 2nd Time  : ", JSON.stringify(resData));
+
+      // const responseData = res.data;
+
+      //Collect the parameters to save in DB
+
+      // const dataObj = JSON.parse(resData);
+      // dataObj.pid = JSON.stringify(decodedObject.pid);
+      //const hoi = JSON.parse(JSON.stringify(res.headers));
+
+      const newAccount = await Account.create(resData);
+      const response = createResponse(200, {
+        newAccount,
+        mwToken,
+        mwRefreshToken,
+      });
+      console.log("response ", JSON.stringify(response));
+      // const response = {
+      //   statusCode: 200,
+      //   body: JSON.stringify(newAccount),
+      // };
+
+      callback(null, response);
+    } else {
+      throw new Error((message = "Unkown Error"));
+    }
   } catch (err) {
     let responseError;
     if (err.name === "AxiosError") {
