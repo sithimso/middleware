@@ -241,15 +241,21 @@ module.exports.getAllToken = async (event, context, callback) => {
 module.exports.refreshToken = async (event, context, callback) => {
   let body = JSON.parse(event.body)
 
+  if(!body.refreshToken){
+    throw new Error((message = "Token is not found"));
+  }
+
   const verify = await jwt.verify(
     body.refreshToken,
     process.env.JWT_RFRESH_SECRET_AWS
   );
+
   if (!verify) {
     throw new Error((message = "Token invalid"));
   }
-  const mwToken = signToken(body.pid);
-  const mwRefreshToken = signreFreshToken(body.pid);
+  
+  const mwToken = signToken(verify.pid);
+  const mwRefreshToken = signreFreshToken(verify.pid);
 
   const response = createResponse(200, {
     mwToken,
