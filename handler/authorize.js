@@ -8,6 +8,7 @@ const serverless = require("serverless-http");
 const axios = require("axios");
 const app = express();
 const mongoose = require("mongoose");
+app.use(express.json());
 
 // JWT_SECRET_AWS=MIDDLEWAREJWTSECRETAWS1234567890
 // JWT_RFRESH_SECRET_AWS=MIDDLEWAREJWTSECRETAWSREFRESH890
@@ -235,4 +236,24 @@ module.exports.getAllToken = async (event, context, callback) => {
     callback(null, responseError);
     return;
   }
+};
+
+module.exports.refreshToken = async (event, context, callback) => {
+  let body = JSON.parse(event.body)
+
+  const verify = await jwt.verify(
+    body.refreshToken,
+    process.env.JWT_RFRESH_SECRET_AWS
+  );
+  if (!verify) {
+    throw new Error((message = "Token invalid"));
+  }
+  const mwToken = signToken(body.pid);
+  const mwRefreshToken = signreFreshToken(body.pid);
+
+  const response = createResponse(200, {
+    mwToken,
+    mwRefreshToken,
+  });
+  callback(null, response);
 };
