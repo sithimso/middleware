@@ -30,10 +30,8 @@ provider:
     DBURLAWS: ${ssm:DBURLAWS}
     
 custom:
-  tableName: 'users-table-sithiphon-${sls:stage}'
+  tableName: 'users-table-Sithiphon-${sls:stage}'
   customDomain:
-    domainName: "dev-middleware.thssoft.com"
-    basePath: "wow"
     stage: ${self:provider.stage}
     createRoute53Record: true
     
