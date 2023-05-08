@@ -122,7 +122,13 @@ functions:
           path: users
           method: get
           cors: true
-                  
+  refreshMWToken:
+    handler: handler/authorize.refreshToken
+    events:
+      - http:
+          path: refreshToken
+          method: post
+          cors: true  
 resources:
   Resources:
     UsersTable:

@@ -2,6 +2,9 @@
   "name": "aws-Sithiphon-sls",
   "version": "1.0.0",
   "description": "",
+  "scripts": {
+    "start:dev": "nodemon -e js  --exec \"sls offline\""
+  },
   "dependencies": {
     "@aws-sdk/client-dynamodb": "^3.310.0",
     "@aws-sdk/lib-dynamodb": "^3.310.0",
