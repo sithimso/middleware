@@ -4,6 +4,7 @@ frameworkVersion: '3'
 # custom:
 #   tableName: 'users-table-sithiphon-${sls:stage}'
 plugins:
+  - serverless-domain-manager
   - serverless-offline
 
 provider:
@@ -31,6 +32,8 @@ provider:
 custom:
   tableName: 'users-table-Sithiphon-${sls:stage}'
   customDomain:
+    domainName: "dev-middleware.thssoft.com"
+    basePath: "wow"
     stage: ${self:provider.stage}
     createRoute53Record: true
     
