@@ -33,7 +33,7 @@ custom:
   tableName: 'users-table-Sithiphon-${sls:stage}'
   customDomain:
     domainName: "dev-middleware.thssoft.com"
-    basePath: "wow"
+    basePath: "/"
     stage: ${self:provider.stage}
     createRoute53Record: true
     

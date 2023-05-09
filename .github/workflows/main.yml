@@ -18,4 +18,4 @@ jobs:
       - name: Install dependencies
         run: npm install
       - name: Deploy with Serverless
-        run: npx serverless deploy --stage production
+        run: npx serverless deploy --stage dev
