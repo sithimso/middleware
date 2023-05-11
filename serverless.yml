@@ -122,6 +122,13 @@ functions:
           path: users
           method: get
           cors: true
+  test:
+    handler: handler/test.test
+    events:
+      - http:
+          path: test
+          method: get
+          cors: true
                   
 resources:
   Resources:
